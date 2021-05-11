@@ -20,11 +20,19 @@ int bs3 = 0;
 int bs4 = 0;
 int bs5 = 0;
 
+void push_buttons(String message) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Push buttons!");
+  lcd.setCursor(0, 1);
+  lcd.print(message);
+}
+
 void setup() {
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
   // Print a message to the LCD.
-  lcd.print("Push buttons!");
+  push_buttons("");
   // initialize the pushbutton pin as an input:
   pinMode(b1, INPUT);
   pinMode(b2, INPUT);
@@ -43,23 +51,12 @@ void loop() {
 
   // check if the pushbuttons are pressed. If it is, the buttonState is HIGH:
   if ((bs1 && bs3) == HIGH) {
-    // set the cursor to column 0, line 1
-    // (note: line 1 is the second row, since counting begins with 0):
-    lcd.setCursor(0, 1);
-    lcd.print("1 and 3! GOOD!");
-    delay(2000);
-    lcd.clear();
+    push_buttons("1 and 3! GOOD!");
   }
   if ((bs2 && bs4) == HIGH) {
-    lcd.setCursor(0, 1);
-    lcd.print("2 and 4! BAD!");
-    delay(2000);
-    lcd.clear();
+    push_buttons("2 and 4! BAD!");
   }
   if (bs5 == HIGH) {
-    lcd.setCursor(0, 1);
-    lcd.print("5 is the best!");
-    delay(2000);
-    lcd.clear();
+    push_buttons("5 is the best!");
   }
 }
