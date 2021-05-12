@@ -84,6 +84,10 @@ void button_puzzle() {
       unlock_container(pos);
     }
   } else {
+    lcd.setCursor(0,0);
+    lcd.write("Push any button");
+    lcd.setCursor(0,1);
+    lcd.write("to lock the box!");
     // read the state of the pushbutton values:
     bs1 = digitalRead(b1);
     bs2 = digitalRead(b2);
