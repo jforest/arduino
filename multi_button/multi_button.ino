@@ -25,13 +25,23 @@ int bs4 = 0;
 int bs5 = 0;
 
 int pos = 0;    // variable to store the servo position
+bool locked = true;
 
-void unlock() {
-  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-    // in steps of 1 degree
-    lock.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
+void unlock_container(int my_pos) {
+  lock.write(my_pos);              // tell servo to go to position in variable 'pos'
+  delay(15);                    // waits 15ms for the servo to reach the position
+  push_buttons("Unlocked!");
+  delay(sleep);
+  locked = false;
+}
+
+void lock_container() {
+  push_buttons("Locking now!");
+  lock.write(90);
+  delay(sleep);
+  push_buttons("Locked!");
+  delay(sleep);
+  locked = true;
 }
 
 void push_buttons(String message) {
@@ -50,31 +60,45 @@ void button_puzzle() {
   bs4 = digitalRead(b4);
   bs5 = digitalRead(b5);
 
-  // check if the pushbuttons are pressed. If it is, the buttonState is HIGH:
-  if ((bs1 && bs3) == HIGH) {
-    push_buttons("1 and 3! GOOD!");
-    delay(sleep);
-    push_buttons("BUT, wrong.");
-  }
-  if ((bs2 && bs4) == HIGH) {
-    push_buttons("2 and 4! BAD!");
-    delay(sleep);
-    push_buttons("WRONGGGGGG!");
-  }
-  if (bs5 == HIGH) {
-    push_buttons("5 is the best!");
-    delay(sleep);
-    push_buttons("YOU WIN!");
-    unlock();
-    push_buttons("Unlocked!");
+  if (locked) {
+    // check if the pushbuttons are pressed. If it is, the buttonState is HIGH:
+    if ((bs1 && bs3) == HIGH) {
+      push_buttons("1 and 3! GOOD!");
+      delay(sleep);
+      push_buttons("but wrong.");
+      delay(sleep);
+      push_buttons("");
+    }
+    if ((bs2 && bs4) == HIGH) {
+      push_buttons("2 and 4! BAD!");
+      delay(sleep);
+      push_buttons("WRONGGGGGG!");
+      delay(sleep);
+      push_buttons("");
+    }
+    if (bs5 == HIGH) {
+      push_buttons("5 is the best!");
+      delay(sleep);
+      push_buttons("YOU WIN!");
+      pos = 180;
+      unlock_container(pos);
+    }
+  } else {
+    // read the state of the pushbutton values:
+    bs1 = digitalRead(b1);
+    bs2 = digitalRead(b2);
+    bs3 = digitalRead(b3);
+    bs4 = digitalRead(b4);
+    bs5 = digitalRead(b5);
+    if ((bs1 || bs2 || bs3 || bs4 || bs5) == HIGH) {
+      lock_container();
+    }
   }
 }
 
 void setup() {
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
-  // Print a message to the LCD.
-  push_buttons("");
   // initialize the pushbutton pin as an input:
   pinMode(b1, INPUT);
   pinMode(b2, INPUT);
@@ -82,6 +106,8 @@ void setup() {
   pinMode(b4, INPUT);
   pinMode(b5, INPUT);
   lock.attach(l1);  // attaches the servo on the l1 pin to the servo object
+  lock_container();
+  push_buttons("");
 }
 
 void loop() {
