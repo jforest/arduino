@@ -2,18 +2,20 @@
 #include <LiquidCrystal.h>
 #include <Servo.h>
 
+#define Buttons_Pressed 6
+
 // constants won't change. They're used here to set pin numbers:
-const int b1 = 6;    // the first button pin
-const int b2 = 5;    // the second button pin
-const int b3 = 4;    // the third button pin
-const int b4 = 3;    // the fourth button pin
-const int b5 = 2;    // the fifth button pin
-const int l1 = 13;   // the lock pin
+const int b1 = 6;       // the first button pin
+const int b2 = 5;       // the second button pin
+const int b3 = 4;       // the third button pin
+const int b4 = 3;       // the fourth button pin
+const int b5 = 2;       // the fifth button pin
+const int l1 = 13;      // the lock pin
 const int sleep = 1000; // set the sleep ms
+const int rs = 12, en = 11, d4 = 10, d5 = 9, d6 = 8, d7 = 7;
 
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
-const int rs = 12, en = 11, d4 = 10, d5 = 9, d6 = 8, d7 = 7;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 Servo lock;  // create servo object to control a servo
 
@@ -26,10 +28,13 @@ int bs5 = 0;
 
 int pos = 0;    // variable to store the servo position
 bool locked = true;
+char Data[Buttons_Pressed];
+char Master[Buttons_Pressed] = "12345";
+byte data_count = 0, master_count = 0;
 
-void unlock_container(int my_pos) {
-  lock.write(my_pos);              // tell servo to go to position in variable 'pos'
-  delay(15);                    // waits 15ms for the servo to reach the position
+void unlock_container() {
+  lock.write(180);             // tell servo to go to position in variable 'my_pos'
+  delay(15);                   // waits 15ms for the servo to reach the position
   push_buttons("Unlocked!");
   delay(sleep);
   locked = false;
@@ -42,6 +47,7 @@ void lock_container() {
   push_buttons("Locked!");
   delay(sleep);
   locked = true;
+  push_buttons("");
 }
 
 void push_buttons(String message) {
@@ -52,8 +58,25 @@ void push_buttons(String message) {
   lcd.print(message);
 }
 
+// Store the button press in the Data array
+void store_button_press(char button) {
+  Data[data_count] = button;
+  lcd.setCursor(data_count,1);
+  lcd.print(String(Data[data_count]));
+  data_count++;
+  delay(250);
+}
+
+void clear_data(){
+  while(data_count !=0){
+    Data[data_count--] = 0;
+  }
+  push_buttons("");
+  return;
+}
+
 void button_puzzle() {
-  // read the state of the pushbutton values:
+  // read the state of the pushbutton values
   bs1 = digitalRead(b1);
   bs2 = digitalRead(b2);
   bs3 = digitalRead(b3);
@@ -61,27 +84,33 @@ void button_puzzle() {
   bs5 = digitalRead(b5);
 
   if (locked) {
-    // check if the pushbuttons are pressed. If it is, the buttonState is HIGH:
-    if ((bs1 && bs3) == HIGH) {
-      push_buttons("1 and 3! GOOD!");
-      delay(sleep);
-      push_buttons("but wrong.");
-      delay(sleep);
-      push_buttons("");
+    if (bs1 == HIGH){
+      store_button_press('1');
     }
-    if ((bs2 && bs4) == HIGH) {
-      push_buttons("2 and 4! BAD!");
-      delay(sleep);
-      push_buttons("WRONGGGGGG!");
-      delay(sleep);
-      push_buttons("");
+    if (bs2 == HIGH){
+      store_button_press('2');
     }
-    if (bs5 == HIGH) {
-      push_buttons("5 is the best!");
-      delay(sleep);
-      push_buttons("YOU WIN!");
-      pos = 180;
-      unlock_container(pos);
+    if (bs3 == HIGH){
+      store_button_press('3');
+    }
+    if (bs4 == HIGH){
+      store_button_press('4');
+    }
+    if (bs5 == HIGH){
+      store_button_press('5');
+    }
+
+    if(data_count == Buttons_Pressed-1){
+      if (!strcmp(Data, Master)) {
+        push_buttons("CORRECT!!!!!");
+        unlock_container();
+        delay(sleep+sleep);
+        clear_data();
+      } else {
+        push_buttons("INCORRECT!");
+        delay(sleep+sleep);
+        clear_data();
+      }
     }
   } else {
     lcd.setCursor(0,0);
