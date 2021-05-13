@@ -19,9 +19,10 @@ const int b10 = 2;
 const int l1 = 13;      // the lock pin
 const int sleep = 1000; // set the sleep ms
 const int rs = 12, en = 11, d4 = 10, d5 = 9, d6 = 8, d7 = 7;
-const int signalPin = A0; // led output
+const int speakerPin = A0; // speaker output
 const int lockedPos = 90; // position of the servo when locked
 const int unlockedPos = 180; // position of the servo when unlocked
+
 
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
@@ -35,6 +36,29 @@ bool locked = true;
 char Data[ButtonsPressed];
 char Master[ButtonsPressed] = "1*1*1*1*";
 byte dataCount = 0, masterCount = 0;
+
+void setup() {
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  // initialize the pushbutton pin as an input:
+  pinMode(b1, INPUT);
+  pinMode(b2, INPUT);
+  pinMode(b3, INPUT);
+  pinMode(b4, INPUT);
+  pinMode(b5, INPUT);
+  pinMode(b6, INPUT);
+  pinMode(b7, INPUT);
+  pinMode(b8, INPUT);
+  pinMode(b9, INPUT);
+  pinMode(b10, INPUT);
+  lock.attach(l1);  // attaches the servo on the l1 pin to the servo object
+  lockContainer();
+  pushButtons("");
+}
+
+void loop() {
+  buttonPuzzle();
+}
 
 void unlockContainer() {
   lock.write(unlockedPos);  // tell servo to go to position in variable 'my_pos'
@@ -136,9 +160,6 @@ void buttonPuzzle() {
         clearData();
       } else {
         pushButtons("INCORRECT!");
-        digitalWrite(signalPin, HIGH);
-        delay(sleep*5);
-        digitalWrite(signalPin, LOW);
         clearData();
       }
     }
@@ -155,27 +176,4 @@ void buttonPuzzle() {
       lockContainer();
     }
   }
-}
-
-void setup() {
-  // set up the LCD's number of columns and rows:
-  lcd.begin(16, 2);
-  // initialize the pushbutton pin as an input:
-  pinMode(b1, INPUT);
-  pinMode(b2, INPUT);
-  pinMode(b3, INPUT);
-  pinMode(b4, INPUT);
-  pinMode(b5, INPUT);
-  pinMode(b6, INPUT);
-  pinMode(b7, INPUT);
-  pinMode(b8, INPUT);
-  pinMode(b9, INPUT);
-  pinMode(b10, INPUT);
-  lock.attach(l1);  // attaches the servo on the l1 pin to the servo object
-  lockContainer();
-  pushButtons("");
-}
-
-void loop() {
-  buttonPuzzle();
 }
