@@ -23,7 +23,6 @@ const int speakerPin = A0; // speaker output
 const int lockedPos = 90; // position of the servo when locked
 const int unlockedPos = 180; // position of the servo when unlocked
 
-
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
@@ -160,6 +159,7 @@ void buttonPuzzle() {
         clearData();
       } else {
         pushButtons("INCORRECT!");
+        delay(sleep*2);
         clearData();
       }
     }
