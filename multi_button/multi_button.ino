@@ -2,14 +2,19 @@
 #include <LiquidCrystal.h>
 #include <Servo.h>
 
-#define Buttons_Pressed 6
+#define Buttons_Pressed 9
 
 // constants won't change. They're used here to set pin numbers:
-const int b1 = 6;       // the first button pin
-const int b2 = 5;       // the second button pin
-const int b3 = 4;       // the third button pin
-const int b4 = 3;       // the fourth button pin
-const int b5 = 2;       // the fifth button pin
+const int b1 = A1;       // the first button pin
+const int b2 = A2;       // the second button pin
+const int b3 = A3;       // the third button pin
+const int b4 = A4;       // the fourth button pin
+const int b5 = A5;       // the fifth button pin
+const int b6 = 6;
+const int b7 = 5;
+const int b8 = 4;
+const int b9 = 3;
+const int b10 = 2;
 const int l1 = 13;      // the lock pin
 const int sleep = 1000; // set the sleep ms
 const int rs = 12, en = 11, d4 = 10, d5 = 9, d6 = 8, d7 = 7;
@@ -20,16 +25,14 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 Servo lock;  // create servo object to control a servo
 
 // Button states
-int bs1 = 0;
-int bs2 = 0;
-int bs3 = 0;
-int bs4 = 0;
-int bs5 = 0;
+int bs1 = 0, bs2 = 0, bs3 = 0, bs4 = 0, bs5 = 0, bs6 = 0, bs7 = 0, bs8 = 0, bs9 = 0, bs10 = 0;
 
-int pos = 0;    // variable to store the servo position
+// led output
+int signalPin = A0;
+
 bool locked = true;
 char Data[Buttons_Pressed];
-char Master[Buttons_Pressed] = "12345";
+char Master[Buttons_Pressed] = "1*1*1*1*";
 byte data_count = 0, master_count = 0;
 
 void unlock_container() {
@@ -75,13 +78,22 @@ void clear_data(){
   return;
 }
 
-void button_puzzle() {
-  // read the state of the pushbutton values
+void read_buttons() {
   bs1 = digitalRead(b1);
   bs2 = digitalRead(b2);
   bs3 = digitalRead(b3);
   bs4 = digitalRead(b4);
   bs5 = digitalRead(b5);
+  bs6 = digitalRead(b6);
+  bs7 = digitalRead(b7);
+  bs8 = digitalRead(b8);
+  bs9 = digitalRead(b9);
+  bs10 = digitalRead(b10);
+}
+
+void button_puzzle() {
+  // read the state of the pushbutton values
+  read_buttons();
 
   if (locked) {
     if (bs1 == HIGH){
@@ -99,6 +111,21 @@ void button_puzzle() {
     if (bs5 == HIGH){
       store_button_press('5');
     }
+    if (bs6 == HIGH){
+      store_button_press('6');
+    }
+    if (bs7 == HIGH){
+      store_button_press('7');
+    }
+    if (bs8 == HIGH){
+      store_button_press('8');
+    }
+    if (bs9 == HIGH){
+      store_button_press('9');
+    }
+    if (bs10 == HIGH){
+      store_button_press('*');
+    }
 
     if(data_count == Buttons_Pressed-1){
       if (!strcmp(Data, Master)) {
@@ -108,7 +135,9 @@ void button_puzzle() {
         clear_data();
       } else {
         push_buttons("INCORRECT!");
-        delay(sleep+sleep);
+        digitalWrite(signalPin, HIGH); 
+        delay(5000);
+        digitalWrite(signalPin, LOW);
         clear_data();
       }
     }
@@ -117,13 +146,11 @@ void button_puzzle() {
     lcd.write("Push any button");
     lcd.setCursor(0,1);
     lcd.write("to lock the box!");
+    
     // read the state of the pushbutton values:
-    bs1 = digitalRead(b1);
-    bs2 = digitalRead(b2);
-    bs3 = digitalRead(b3);
-    bs4 = digitalRead(b4);
-    bs5 = digitalRead(b5);
-    if ((bs1 || bs2 || bs3 || bs4 || bs5) == HIGH) {
+    read_buttons();
+    
+    if ((bs1 || bs2 || bs3 || bs4 || bs5 || bs6 || bs7 || bs8 || bs9 || bs10) == HIGH) {
       lock_container();
     }
   }
@@ -138,6 +165,11 @@ void setup() {
   pinMode(b3, INPUT);
   pinMode(b4, INPUT);
   pinMode(b5, INPUT);
+  pinMode(b6, INPUT);
+  pinMode(b7, INPUT);
+  pinMode(b8, INPUT);
+  pinMode(b9, INPUT);
+  pinMode(b10, INPUT);
   lock.attach(l1);  // attaches the servo on the l1 pin to the servo object
   lock_container();
   push_buttons("");
