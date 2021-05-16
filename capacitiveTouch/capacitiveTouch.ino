@@ -29,24 +29,28 @@ void loop() {
   if (blueState == LOW) {
     touchWires("BLUE");
     delay(1000);
+    touchWires("");
   }
   if (greenState == LOW) {
     touchWires("GREEN");
     delay(1000);
+    touchWires("");
   }
   if (redState == LOW) {
     touchWires("RED");
     delay(1000);
+    touchWires("");
   }
   if (yellowState == LOW) {
     touchWires("YELLOW");
     delay(1000);
+    touchWires("");
   }
   if (whiteState == LOW) {
     touchWires("WHITE");
     delay(1000);
+    touchWires("");
   }
-  touchWires("");
 }
 
 void readTouches() {
