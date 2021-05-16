@@ -1,45 +1,48 @@
+/*
+ *  Button Puzzle!
+ *
+ *  Jforest 05/16/2021
+ *
+ *  A challenging button puzzle to unlock the box to get to the log ond swag
+ */
+
 // include the library code:
 #include <LiquidCrystal.h>
 #include <Servo.h>
 
 #define ButtonsPressed 9
-#define NumButtons 10
 
-// constants won't change. They're used here to set pin numbers:
-const int b1 = A1;       // the first button pin
-const int b2 = A2;       // the second button pin
-const int b3 = A3;       // the third button pin
-const int b4 = A4;       // the fourth button pin
-const int b5 = A5;       // the fifth button pin
-const int b6 = 6;
-const int b7 = 5;
-const int b8 = 4;
-const int b9 = 3;
-const int b10 = 2;
-const int l1 = 13;      // the lock pin
-const int sleep = 1000; // set the sleep ms
+// button pins
+const int b1 = A1, b2 = A2, b3 = A3, b4 = A4, b5 = A5, b6 = 6, b7 = 5, b8 = 4, b9 = 3, b10 = 2;
+// the lock pin
+const int l1 = 13;
+// base sleep time in ms
+const int sleep = 1000;
+// LCD pins
 const int rs = 12, en = 11, d4 = 10, d5 = 9, d6 = 8, d7 = 7;
-const int speakerPin = A0; // speaker output
-const int lockedPos = 90; // position of the servo when locked
-const int unlockedPos = 180; // position of the servo when unlocked
+// locked position of servo
+const int lockedPos = 90;
+// unlocked position of servo
+const int unlockedPos = 180;
 
-// initialize the library by associating any needed LCD interface pin
-// with the arduino pin number it is connected to
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
-Servo lock;  // create servo object to control a servo
+Servo lock;
 
 // Button states
 int bs1 = 0, bs2 = 0, bs3 = 0, bs4 = 0, bs5 = 0, bs6 = 0, bs7 = 0, bs8 = 0, bs9 = 0, bs10 = 0;
-
+// locked or not
 bool locked = true;
+// array of buttons pressed
 char Data[ButtonsPressed];
-char Master[ButtonsPressed] = "1*1*1*1*";
-byte dataCount = 0, masterCount = 0;
+// button presses to unlock
+char Master[ButtonsPressed] = "01181903";
+// number of buttons pressed so far
+byte dataCount = 0;
 
 void setup() {
-  // set up the LCD's number of columns and rows:
+  // set up the LCD's number of columns and rows
   lcd.begin(16, 2);
-  // initialize the pushbutton pin as an input:
+  // initialize the pushbutton pins as an input
   pinMode(b1, INPUT);
   pinMode(b2, INPUT);
   pinMode(b3, INPUT);
@@ -60,17 +63,18 @@ void loop() {
 }
 
 void unlockContainer() {
-  lock.write(unlockedPos);  // tell servo to go to position in variable 'my_pos'
+  lock.write(unlockedPos);  // tell servo to go to unlocked position
   delay(15);                // waits 15ms for the servo to reach the position
   pushButtons("Unlocked!");
   delay(sleep);
   locked = false;
+  pushButtons("");
 }
 
 void lockContainer() {
   pushButtons("Locking now!");
-  lock.write(lockedPos);
-  delay(sleep);
+  lock.write(lockedPos);  // tell the servo to go to the locked position
+  delay(15);              // waits 15ms for the servo to reach the position
   pushButtons("Locked!");
   delay(sleep);
   locked = true;
@@ -123,32 +127,32 @@ void buttonPuzzle() {
     if (bs1 == HIGH) {
       storeButtonPress('1');
     }
-    if (bs2 == HIGH) {
+    else if (bs2 == HIGH) {
       storeButtonPress('2');
     }
-    if (bs3 == HIGH) {
+    else if (bs3 == HIGH) {
       storeButtonPress('3');
     }
-    if (bs4 == HIGH) {
+    else if (bs4 == HIGH) {
       storeButtonPress('4');
     }
-    if (bs5 == HIGH) {
+    else if (bs5 == HIGH) {
       storeButtonPress('5');
     }
-    if (bs6 == HIGH) {
+    else if (bs6 == HIGH) {
       storeButtonPress('6');
     }
-    if (bs7 == HIGH) {
+    else if (bs7 == HIGH) {
       storeButtonPress('7');
     }
-    if (bs8 == HIGH) {
+    else if (bs8 == HIGH) {
       storeButtonPress('8');
     }
-    if (bs9 == HIGH) {
+    else if (bs9 == HIGH) {
       storeButtonPress('9');
     }
-    if (bs10 == HIGH) {
-      storeButtonPress('*');
+    else if (bs10 == HIGH) {
+      storeButtonPress('0');
     }
 
     if (dataCount == ButtonsPressed - 1) {
