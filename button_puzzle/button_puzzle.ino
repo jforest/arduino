@@ -7,17 +7,22 @@
  */
 
 // include the library code:
-#include <LiquidCrystal.h>
+#include <Bounce2.h>
 #include <Servo.h>
+#include "SSD1306Ascii.h"
+#include "SSD1306AsciiAvrI2c.h"
 
-#define ButtonsPressed 8
+#define I2C_ADDRESS 0x3C
+#define ButtonsPressed 9
 
 // button pins
-const int b1 = A1, b2 = A2, b3 = A3, b4 = A4, b5 = A5, b6 = 6, b7 = 5, b8 = 4, b9 = 3, b10 = 2;
+const int b1 = 2, b2 = 3, b3 = 4, b4 = 5, b5 = 6, b6 = 7, b7 = 8, b8 = 9, b9 = 10, b10 = 11;
 // the lock pin
 const int l1 = 13;
 // base sleep time in ms
 const int sleep = 1000;
+// button debounce time
+const int buttonSleep = 5;
 // LCD pins
 const int rs = 12, en = 11, d4 = 10, d5 = 9, d6 = 8, d7 = 7;
 // speaker pin
@@ -27,34 +32,66 @@ const int lockedPos = 90;
 // unlocked position of servo
 const int unlockedPos = 180;
 
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+SSD1306AsciiAvrI2c oled;
 Servo lock;
+Bounce2::Button button1 = Bounce2::Button();
+Bounce2::Button button2 = Bounce2::Button();
+Bounce2::Button button3 = Bounce2::Button();
+Bounce2::Button button4 = Bounce2::Button();
+Bounce2::Button button5 = Bounce2::Button();
+Bounce2::Button button6 = Bounce2::Button();
+Bounce2::Button button7 = Bounce2::Button();
+Bounce2::Button button8 = Bounce2::Button();
+Bounce2::Button button9 = Bounce2::Button();
+Bounce2::Button button10 = Bounce2::Button();
 
-// Button states
-int bs1 = 0, bs2 = 0, bs3 = 0, bs4 = 0, bs5 = 0, bs6 = 0, bs7 = 0, bs8 = 0, bs9 = 0, bs10 = 0;
 // locked or not
 bool locked = true;
 // array of buttons pressed
 char Data[ButtonsPressed];
 // button presses to unlock
-char Master[ButtonsPressed] = "MARCONI";
+char Master[ButtonsPressed] = "01181903";
 // number of buttons pressed so far
 byte dataCount = 0;
 
 void setup() {
-  // set up the LCD's number of columns and rows
-  lcd.begin(16, 2);
+  // set up the display
+  oled.begin(&Adafruit128x64, I2C_ADDRESS);
+  oled.setFont(ZevvPeep8x16);
+  oled.clear();
   // initialize the pushbutton pins as an input
-  pinMode(b1, INPUT);
-  pinMode(b2, INPUT);
-  pinMode(b3, INPUT);
-  pinMode(b4, INPUT);
-  pinMode(b5, INPUT);
-  pinMode(b6, INPUT);
-  pinMode(b7, INPUT);
-  pinMode(b8, INPUT);
-  pinMode(b9, INPUT);
-  pinMode(b10, INPUT);
+  button1.attach( b1, INPUT );
+  button2.attach( b2, INPUT );
+  button3.attach( b3, INPUT );
+  button4.attach( b4, INPUT );
+  button5.attach( b5, INPUT );
+  button6.attach( b6, INPUT );
+  button7.attach( b7, INPUT );
+  button8.attach( b8, INPUT );
+  button9.attach( b9, INPUT );
+  button10.attach( b10, INPUT );
+  // set the debounce sleep time on each button
+  button1.interval(buttonSleep);
+  button2.interval(buttonSleep);
+  button3.interval(buttonSleep);
+  button4.interval(buttonSleep);
+  button5.interval(buttonSleep);
+  button6.interval(buttonSleep);
+  button7.interval(buttonSleep);
+  button8.interval(buttonSleep);
+  button9.interval(buttonSleep);
+  button10.interval(buttonSleep);
+  // signal is HIGH when button is pressed
+  button1.setPressedState(HIGH);
+  button2.setPressedState(HIGH);
+  button3.setPressedState(HIGH);
+  button4.setPressedState(HIGH);
+  button5.setPressedState(HIGH);
+  button6.setPressedState(HIGH);
+  button7.setPressedState(HIGH);
+  button8.setPressedState(HIGH);
+  button9.setPressedState(HIGH);
+  button10.setPressedState(HIGH);
   lock.attach(l1);  // attaches the servo on the l1 pin to the servo object
   lockContainer();
   pushButtons("");
@@ -66,96 +103,48 @@ void loop() {
 
 void pushButtons(String message) {
   // Output the main push buttons text, with additional message line
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Push buttons!");
-  lcd.setCursor(0, 1);
-  lcd.print(message);
+  oled.clear();
+  oled.setCursor(0, 0);
+  oled.print("Push buttons!");
+  oled.setCursor(0, 2);
+  oled.print(message);
 }
 
 void buttonPuzzle() {
   // In here is the actual puzzle
-    // read the state of the pushbutton values
+  // read the state of the pushbutton values
   readButtons();
 
   if (locked) {
-    if ((bs1 == HIGH) && (bs2 == HIGH)) {
-      storeButtonPress('A');
+    if (button1.pressed()) {
+      storeButtonPress('1');
     }
-    else if ((bs2 == HIGH) && (bs3 == HIGH)) {
-      storeButtonPress('B');
+    else if (button2.pressed()) {
+      storeButtonPress('2');
     }
-    else if ((bs3 == HIGH) && (bs4 == HIGH)) {
-      storeButtonPress('C');
+    else if (button3.pressed()) {
+      storeButtonPress('3');
     }
-    else if ((bs4 == HIGH) && (bs5 == HIGH)) {
-      storeButtonPress('D');
+    else if (button4.pressed()) {
+      storeButtonPress('4');
     }
-    else if ((bs5 == HIGH) && (bs6 == HIGH)) {
-      storeButtonPress('E');
+    else if (button5.pressed()) {
+      storeButtonPress('5');
     }
-    else if ((bs6 == HIGH) && (bs7 == HIGH)) {
-      storeButtonPress('F');
+    else if (button6.pressed()) {
+      storeButtonPress('6');
     }
-    else if ((bs7 == HIGH) && (bs8 == HIGH)) {
-      storeButtonPress('G');
+    else if (button7.pressed()) {
+      storeButtonPress('7');
     }
-    else if ((bs8 == HIGH) && (bs9 == HIGH)) {
-      storeButtonPress('H');
+    else if (button8.pressed()) {
+      storeButtonPress('8');
     }
-    else if ((bs9 == HIGH) && (bs10 == HIGH)) {
-      storeButtonPress('I');
+    else if (button9.pressed()) {
+      storeButtonPress('9');
     }
-    else if ((bs1 == HIGH) && (bs3 == HIGH)) {
-      storeButtonPress('J');
-    }
-    else if ((bs2 == HIGH) && (bs4 == HIGH)) {
-      storeButtonPress('K');
-    }
-    else if ((bs3 == HIGH) && (bs5 == HIGH)) {
-      storeButtonPress('L');
-    }
-    else if ((bs4 == HIGH) && (bs6 == HIGH)) {
-      storeButtonPress('M');
-    }
-    else if ((bs5 == HIGH) && (bs7 == HIGH)) {
-      storeButtonPress('N');
-    }
-    else if ((bs6 == HIGH) && (bs8 == HIGH)) {
-      storeButtonPress('O');
-    }
-    else if ((bs7 == HIGH) && (bs9 == HIGH)) {
-      storeButtonPress('P');
-    }
-    else if ((bs8 == HIGH) && (bs10 == HIGH)) {
-      storeButtonPress('Q');
-    }
-    else if ((bs1 == HIGH) && (bs4 == HIGH)) {
-      storeButtonPress('R');
-    }
-    else if ((bs2 == HIGH) && (bs5 == HIGH)) {
-      storeButtonPress('S');
-    }
-    else if ((bs3 == HIGH) && (bs6 == HIGH)) {
-      storeButtonPress('T');
-    }
-    else if ((bs4 == HIGH) && (bs7 == HIGH)) {
-      storeButtonPress('U');
-    }
-    else if ((bs5 == HIGH) && (bs8 == HIGH)) {
-      storeButtonPress('V');
-    }
-    else if ((bs6 == HIGH) && (bs9 == HIGH)) {
-      storeButtonPress('W');
-    }
-    else if ((bs7 == HIGH) && (bs10 == HIGH)) {
-      storeButtonPress('X');
-    }
-    else if ((bs1 == HIGH) && (bs5 == HIGH)) {
-      storeButtonPress('Y');
-    }
-    else if ((bs2 == HIGH) && (bs6 == HIGH)) {
-      storeButtonPress('Z');
+    else if (button10.pressed()) {
+      storeButtonPress('0');
     }
 
     if (dataCount == ButtonsPressed - 1) {
@@ -171,16 +160,16 @@ void buttonPuzzle() {
       }
     }
   } else {
-    lcd.setCursor(0, 0);
-    lcd.write("Push any button");
-    lcd.setCursor(0, 1);
-    lcd.write("to lock the box!");
+    oled.setCursor(0, 2);
+    oled.write("Push any button");
+    oled.setCursor(0, 4);
+    oled.write("to lock the box!");
 
     // read the state of the pushbutton values:
     readButtons();
 
     // If any of them are HIGH, lock the container
-    if ((bs1 || bs2 || bs3 || bs4 || bs5 || bs6 || bs7 || bs8 || bs9 || bs10) == HIGH) {
+    if (button1.pressed() || button2.pressed() || button3.pressed() || button4.pressed() || button5.pressed() || button6.pressed() || button7.pressed() || button8.pressed() || button9.pressed() || button10.pressed()) {
       lockContainer();
     }
   }
@@ -188,24 +177,24 @@ void buttonPuzzle() {
 
 void readButtons() {
   // Read the button states
-  bs1 = digitalRead(b1);
-  bs2 = digitalRead(b2);
-  bs3 = digitalRead(b3);
-  bs4 = digitalRead(b4);
-  bs5 = digitalRead(b5);
-  bs6 = digitalRead(b6);
-  bs7 = digitalRead(b7);
-  bs8 = digitalRead(b8);
-  bs9 = digitalRead(b9);
-  bs10 = digitalRead(b10);
+  button1.update();
+  button2.update();
+  button3.update();
+  button4.update();
+  button5.update();
+  button6.update();
+  button7.update();
+  button9.update();
+  button9.update();
+  button10.update();
 }
 
 
 // Store the button press in the Data array
 void storeButtonPress(char button) {
   Data[dataCount] = button;
-  lcd.setCursor(dataCount, 1);
-  lcd.print(String(Data[dataCount]));
+  oled.setCursor(dataCount*8, 2);
+  oled.print(String(Data[dataCount]));
   dataCount++;
   delay(sleep/4);
 }
