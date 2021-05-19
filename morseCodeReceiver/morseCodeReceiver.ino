@@ -4,89 +4,88 @@
 
 #define I2C_ADDRESS 0x3C
 
-const int dot = 4;
-const int dash = 3;
-const int enter = 2;
-const int led = 13;
+// Delay between button pushes
 const int unitDelay = 250;
-int dotState = 0;
-int dashState = 0;
-int enterState = 0;
 
+// Define pins
+const int receptionPin = 12;
+const int ledPin = 13;
+
+// Initial pin states
+int ledState = LOW;
+int receptionState = LOW;
+int lastReceptionState = LOW;
+
+long signalLength = 0;
+long pause = 0;
+String morse = "";
+String dash = "-";
+String dot = ".";
+
+boolean checker = false;
+boolean linechecker = false;
+
+// Create the display object
 SSD1306AsciiAvrI2c oled;
 
 void setup() {
-  pinMode(dot, INPUT);
-  pinMode(dash, INPUT);
-  pinMode(led, OUTPUT);
-  digitalWrite(led, LOW);
+  pinMode(receptionPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
   oled.begin(&Adafruit128x64, I2C_ADDRESS);
   oled.setFont(Adafruit5x7);
   oled.setScrollMode(SCROLL_MODE_AUTO);
   oled.clear();
   oled.setCursor(0, 0);
-  oled.print("Enter Morse code!");
+  oled.print("Receiving Morse code!");
+  oled.setCursor(0, 2);
 }
 
 void loop() {
-  static String code = "";
-  readButtons();
-  if (enterState == HIGH) {
-    MorseDecode(code);
-    code = "";
-  }
-  if (dotState == HIGH) {
-    code += '.';
-    pushButtons(code);
-    flashLED(led, unitDelay);
-  } else if (dashState == HIGH) {
-    code += '-';
-    pushButtons(code);
-    flashLED(led, unitDelay*2);
-  }
-}
+  receptionState = digitalRead(receptionPin);
 
-void flashLED(int ledPin, int flashDelay) {
-    digitalWrite(ledPin, HIGH);
-    delay(flashDelay*2);
+  if (receptionState && lastReceptionState) {
+    ++signalLength;
+  } else if (!receptionState && lastReceptionState) {
+    if (signalLength > 50 && signalLength < unitDelay*2) {
+      morse =  morse + dot;
+    } else if (signalLength > unitDelay*2) {
+      morse = morse + dash;
+    }
+    signalLength = 0;
     digitalWrite(ledPin, LOW);
+  } else if (receptionState && !lastReceptionState) {
+    pause=0;
+    digitalWrite(ledPin, HIGH);
+    checker = true;
+    linechecker = true;
+  } else if (!receptionState && !lastReceptionState) {
+    ++pause;
+    if (( pause > 3 * unitDelay ) && (checker)) {
+      oled.print(morseDecode(morse));
+      checker = false;
+      morse = "";
+    }
+    if ((pause > 15 * unitDelay) && (linechecker)) {
+      oled.print(" ");
+      linechecker = false;
+    }
+  }
+  lastReceptionState=receptionState;
+  delay(1);
 }
 
-bool MorseDecode(String testCode) {
+char morseDecode(String testCode) {
   static String morse[] = {".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....",
                            "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-",
                            ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--..",
-                           "0"};
-  bool matched = false;
+                           "!"};
   for (int i = 0; i <= 26; i++) {
     delay(unitDelay/15);
     if (morse[i] == testCode) {
-      pushButtons(String(char('A' + i)));
-      matched = true;
-      break;
-    } else if (morse[i] == "0") {
-      morseError("No matching code!");
-      break;
+      return char('A' + i);
+    } else if (morse[i] == "!") {
+      return ' ';
     }
   }
-  return matched;
-}
-
-void pushButtons(String message) {
-  // Output the main push buttons text, with additional message line
-  oled.setCursor(0, 2);
-  oled.clearToEOL();
-  oled.print(message);
-}
-
-void morseError(String message) {
-  oled.setCursor(0, 4);
-  oled.clearToEOL();
-  oled.print(message);
-}
-
-void readButtons() {
-  dotState = digitalRead(dot);
-  dashState = digitalRead(dash);
-  enterState = digitalRead(enter);
 }
