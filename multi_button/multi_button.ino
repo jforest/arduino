@@ -15,19 +15,17 @@
 #define ButtonsPressed 9
 #define NumButtons 10
 
-// the lock pin
-const int l1 = 13;
-// base sleep time in ms
-const int sleep = 1000;
-// locked position of servo
-const int lockedPos = 90;
-// unlocked position of servo
-const int unlockedPos = 180;
+const int l1 = 13;           // the lock pin
+const int s1 = A3;           // the sound input pin
+const int sleep = 1000;      // base sleep time in ms
+const int lockedPos = 90;    // locked position of servo
+const int unlockedPos = 180; // unlocked position of servo
+const int buttons[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11}; // button pins
+
 
 SSD1306AsciiAvrI2c oled;
 Servo lock;
 
-int buttons[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11}; // button pins
 int buttonStates[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 char buttonValues[] = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
 bool locked = true;
