@@ -23,10 +23,6 @@ const int l1 = 13;
 const int sleep = 1000;
 // button debounce time
 const int buttonSleep = 5;
-// LCD pins
-const int rs = 12, en = 11, d4 = 10, d5 = 9, d6 = 8, d7 = 7;
-// speaker pin
-const int speakerPin = A0;
 // locked position of servo
 const int lockedPos = 90;
 // unlocked position of servo
