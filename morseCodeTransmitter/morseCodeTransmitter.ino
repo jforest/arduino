@@ -4,6 +4,7 @@
 #include "SSD1306AsciiWire.h"
 
 #define I2C_ADDRESS 0x3C
+#define SCREEN_CHARS_WIDE 22
 
 // Delay between button pushes
 const int unitDelay = 250;
@@ -49,6 +50,7 @@ void setup() {
 }
 
 void loop() {
+  static String screenOutput = "";
   buttonState = digitalRead(buttonPin);
   digitalWrite(transmissionPin, buttonState); // send the button state to the radio
   
@@ -76,15 +78,30 @@ void loop() {
   } else if (!buttonState && !lastButtonState) {
     ++pause;
     if (( pause > 3 * unitDelay ) && (checker)) {
-      oled.print(morse+" ");
+      screenOutput = morseOutput(morse + " ", screenOutput);
       checker = false;
       morse = "";
     }
     if ((pause > 15 * unitDelay) && (linechecker)) {
-      oled.print(" ");
+      screenOutput = morseOutput(" ", screenOutput);
       linechecker = false;
     }
   }
   lastButtonState=buttonState;
   delay(1);
+}
+
+String morseOutput(String code, String screen) {
+  if (screen.length() > (SCREEN_CHARS_WIDE - code.length())) {
+    screen.remove(0, code.length());
+    if (screen.length() > SCREEN_CHARS_WIDE) {
+      screen.remove(0, (screen.length() - SCREEN_CHARS_WIDE));
+    }
+  }
+  screen += code;
+  oled.setCursor(0,2);
+  oled.clearToEOL();
+  oled.print(screen);
+
+  return screen;
 }
