@@ -1,7 +1,7 @@
 // Morse code - Receiver
 #include <Servo.h>
 #include "SSD1306Ascii.h"
-#include "SSD1306AsciiAvrI2c.h"
+#include "SSD1306AsciiWire.h"
 
 #define I2C_ADDRESS 0x3C
 #define ANSWER_LENGTH 4
@@ -37,10 +37,12 @@ char master[ANSWER_LENGTH] = "SOS";     // String needed to unlock the container
 byte dataCount = 0;                     // number of chars received so far
 
 // Create the display object and servo object
-SSD1306AsciiAvrI2c oled;
+SSD1306AsciiWire oled;
 Servo lock;
 
 void setup() {
+  Wire.begin();
+  Wire.setClock(400000L);
   pinMode(receptionPin, INPUT);
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
