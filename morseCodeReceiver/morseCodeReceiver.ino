@@ -4,7 +4,7 @@
 #include "SSD1306AsciiWire.h"
 
 #define I2C_ADDRESS 0x3C
-#define ANSWER_LENGTH 4
+#define ANSWER_LENGTH 8
 
 // Delay between button pushes
 const int unitDelay = 250;
@@ -33,7 +33,7 @@ boolean checker = false;
 boolean linechecker = false;
 boolean locked = true;                  // is the container locked or not
 char data[ANSWER_LENGTH];               // String received via morse code
-char master[ANSWER_LENGTH] = "SOS";     // String needed to unlock the container
+char master[ANSWER_LENGTH] = "MARCONI"; // String needed to unlock the container
 byte dataCount = 0;                     // number of chars received so far
 
 // Create the display object and servo object
@@ -47,11 +47,10 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
   oled.begin(&Adafruit128x64, I2C_ADDRESS);
-  oled.setFont(Adafruit5x7);
-  oled.setScrollMode(SCROLL_MODE_AUTO);
+  oled.setFont(ZevvPeep8x16);
   oled.clear();
   oled.setCursor(0, 0);
-  oled.print("Receiving Morse code!");
+  oled.print("Decoding morse!");
   oled.setCursor(0, 2);
   lock.attach(lockPin);
   lockContainer();
@@ -147,7 +146,7 @@ void statusMessage(String message) {
 // Store the character in the data array
 void storeChar(char value) {
   data[dataCount] = value;
-  oled.setCursor(dataCount*5, 2);
+  oled.setCursor(dataCount*8, 2);
   oled.print(String(data[dataCount]));
   dataCount++;
   delay(unitDelay/2);
@@ -164,9 +163,9 @@ void addChar(char result) {
   storeChar(result);
   if (dataCount == ANSWER_LENGTH - 1) {
     if (!strcmp(data, master)) {
-      statusMessage("CORRECT!!!!!");
+      statusMessage("CORRECT!");
       unlockContainer();
-      oled.write("Send any code to lock");
+      oled.write("Send any code");
       clearData();
     } else {
       statusMessage("INCORRECT!");
