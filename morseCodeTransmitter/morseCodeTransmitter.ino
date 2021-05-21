@@ -4,7 +4,7 @@
 #include "SSD1306AsciiWire.h"
 
 #define I2C_ADDRESS 0x3C
-#define SCREEN_CHARS_WIDE 22
+#define SCREEN_CHARS_WIDE 16
 
 // Delay between button pushes
 const int unitDelay = 250;
@@ -41,11 +41,10 @@ void setup() {
   pinMode(transmissionPin, OUTPUT);
   digitalWrite(ledPin, LOW);
   oled.begin(&Adafruit128x64, I2C_ADDRESS);
-  oled.setFont(Adafruit5x7);
-  oled.setScrollMode(SCROLL_MODE_AUTO);
+  oled.setFont(ZevvPeep8x16);
   oled.clear();
   oled.setCursor(0, 0);
-  oled.print("Enter Morse code!");
+  oled.print("Enter Morse code");
   oled.setCursor(0, 2);
 }
 
@@ -78,12 +77,11 @@ void loop() {
   } else if (!buttonState && !lastButtonState) {
     ++pause;
     if (( pause > 3 * unitDelay ) && (checker)) {
-      screenOutput = morseOutput(morse + " ", screenOutput);
+      screenOutput = morseOutput(morse, screenOutput);
       checker = false;
       morse = "";
     }
     if ((pause > 15 * unitDelay) && (linechecker)) {
-      screenOutput = morseOutput(" ", screenOutput);
       linechecker = false;
     }
   }
@@ -92,13 +90,14 @@ void loop() {
 }
 
 String morseOutput(String code, String screen) {
-  if (screen.length() > (SCREEN_CHARS_WIDE - code.length())) {
-    screen.remove(0, code.length());
-    if (screen.length() > SCREEN_CHARS_WIDE) {
-      screen.remove(0, (screen.length() - SCREEN_CHARS_WIDE));
-    }
+  if (screen.length() == 0) {
+    screen = code;
+  } else {
+    screen += " " + code;
   }
-  screen += code;
+  if (screen.length() >= SCREEN_CHARS_WIDE) {
+    screen.remove(0, (screen.length() - SCREEN_CHARS_WIDE));
+  }
   oled.setCursor(0,2);
   oled.clearToEOL();
   oled.print(screen);
