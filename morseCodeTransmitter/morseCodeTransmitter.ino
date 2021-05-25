@@ -1,5 +1,7 @@
 // Morse code - Transmitter
-#include "Wire.h"
+#include "RF24.h"
+#include <nRF24L01.h>
+#include <SPI.h>
 #include "SSD1306Ascii.h"
 #include "SSD1306AsciiWire.h"
 
@@ -10,10 +12,11 @@
 const int unitDelay = 250;
 
 // Define pins
-const int buttonPin = 13;
-const int transmissionPin = 12;
-const int ledPin = 8;
+const int buttonPin = 9;
+const int ledPin = 10;
 const int buzzer = A0;
+const int cePin = 7;
+const int csnPin = 8;
 
 // Initial pin states
 int ledState = LOW;
@@ -29,30 +32,48 @@ String dot = ".";
 boolean checker = false;
 boolean linechecker = false;
 
+const byte rxAddress[5] = {'R','N','o','d','e'};
+
 // Create the display object
 SSD1306AsciiWire oled;
+
+// instantiate an object for the nRF24L01 transceiver
+RF24 radio(cePin, csnPin);
 
 void setup() {
   Wire.begin();
   Wire.setClock(400000L);
-  pinMode(buttonPin, INPUT);
-  pinMode(ledPin, OUTPUT);
-  pinMode(buzzer, OUTPUT);
-  pinMode(transmissionPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
+
   oled.begin(&Adafruit128x64, I2C_ADDRESS);
   oled.setFont(ZevvPeep8x16);
   oled.clear();
   oled.setCursor(0, 0);
   oled.print("Enter Morse code");
   oled.setCursor(0, 2);
+
+  if (!radio.begin()) {
+    oled.print("Tx not working");
+    for ( int i = 0; i< 10; i++) {
+      digitalWrite(ledPin, HIGH);
+      delay(1000);
+      digitalWrite(ledPin, LOW);
+      delay(1000);
+    }
+  }
+  radio.setPALevel(RF24_PA_MIN);
+  radio.setRetries(3,5); // delay, count
+  radio.openWritingPipe(rxAddress);
+
+  pinMode(buttonPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+  digitalWrite(ledPin, LOW);
 }
 
 void loop() {
   static String screenOutput = "";
   buttonState = digitalRead(buttonPin);
-  digitalWrite(transmissionPin, buttonState); // send the button state to the radio
-  
+
   if (buttonState && lastButtonState) {
     ++signalLength;
     if (signalLength < unitDelay*2) {
@@ -78,6 +99,7 @@ void loop() {
     ++pause;
     if (( pause > 3 * unitDelay ) && (checker)) {
       screenOutput = morseOutput(morse, screenOutput);
+      transmit(morse);
       checker = false;
       morse = "";
     }
@@ -103,4 +125,14 @@ String morseOutput(String code, String screen) {
   oled.print(screen);
 
   return screen;
+}
+
+void transmit(String payload) {
+  char payloadInChars[32];
+  payload.toCharArray(payloadInChars, 32); // we expect a 32 char array on the other side too
+  if (!radio.write(&payloadInChars, sizeof(payloadInChars))) {
+    oled.setCursor(0,5);
+    oled.clearToEOL();
+    oled.print("Failed to send");
+  }
 }
