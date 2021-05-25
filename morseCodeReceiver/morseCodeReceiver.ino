@@ -1,5 +1,8 @@
 // Morse code - Receiver
+#include "RF24.h"
+#include <nRF24L01.h>
 #include <Servo.h>
+#include <SPI.h>
 #include "SSD1306Ascii.h"
 #include "SSD1306AsciiWire.h"
 
@@ -11,11 +14,13 @@ const int unitDelay = 250;
 
 // Define pins
 const int receptionPin = 12;
-const int ledPin = 13;
+const int ledPin = 10;
 const int lockPin = 2;
+const int cePin = 7;
+const int csnPin = 8;
 
 // servo positions
-const int lockedPos = 90;    // locked position of servo
+const int lockedPos = 90;  // locked position of servo
 const int unlockedPos = 180; // unlocked position of servo
 
 // Initial pin states
@@ -36,64 +41,69 @@ char data[ANSWER_LENGTH];               // String received via morse code
 char master[ANSWER_LENGTH] = "MARCONI"; // String needed to unlock the container
 byte dataCount = 0;                     // number of chars received so far
 
+const byte rxAddress[5] = {'R','N','o','d','e'};
+
 // Create the display object and servo object
 SSD1306AsciiWire oled;
 Servo lock;
 
+// instantiate an object for the nRF24L01 transceiver
+RF24 radio(cePin, csnPin);
+
 void setup() {
   Wire.begin();
   Wire.setClock(400000L);
-  pinMode(receptionPin, INPUT);
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
+
   oled.begin(&Adafruit128x64, I2C_ADDRESS);
   oled.setFont(ZevvPeep8x16);
   oled.clear();
   oled.setCursor(0, 0);
   oled.print("Decoding morse!");
   oled.setCursor(0, 2);
+  pinMode(ledPin, OUTPUT);
+
+  if (!radio.begin()) {
+    oled.print("Rx not working");
+    for ( int i = 0; i< 10; i++) {
+      digitalWrite(ledPin, HIGH);
+      delay(1000);
+      digitalWrite(ledPin, LOW);
+      delay(1000);
+    }
+  }
+
+  radio.setPALevel(RF24_PA_MIN);
+  radio.setDataRate(RF24_250KBPS);
+  radio.openReadingPipe(1,rxAddress);
+  radio.startListening();
+
+  digitalWrite(ledPin, LOW);
+
   lock.attach(lockPin);
   lockContainer();
 }
 
 void loop() {
-  receptionState = digitalRead(receptionPin);
+  char incomingMorse[32];                // Variable for morse code
 
-  if (receptionState && lastReceptionState) {
-    ++signalLength;
-  } else if (!receptionState && lastReceptionState) {
-    if (signalLength > 50 && signalLength < unitDelay*2) {
-      morse =  morse + dot;
-    } else if (signalLength > unitDelay*2) {
-      morse = morse + dash;
-    }
-    signalLength = 0;
-    digitalWrite(ledPin, LOW);
-  } else if (receptionState && !lastReceptionState) {
-    pause=0;
-    digitalWrite(ledPin, HIGH);
-    checker = true;
-    linechecker = true;
-  } else if (!receptionState && !lastReceptionState) {
-    ++pause;
-    if (( pause > 3 * unitDelay ) && (checker)) {
-      char result = morseDecode(morse);
-      if (locked) {
-        addChar(result);
-      } else {
-        lockContainer();
-        clearData();
-      }
-      checker = false;
-      morse = "";
-    }
-    if ((pause > 15 * unitDelay) && (linechecker)) {
-      oled.print(" ");
-      linechecker = false;
+  if(radio.available()) {
+    while(radio.available()) {           // While there is data ready
+      radio.read(&incomingMorse, sizeof(incomingMorse));        // Get the payload
     }
   }
-  lastReceptionState=receptionState;
-  delay(1);
+
+  if (isArrayEmpty(incomingMorse)) {
+    oled.print("array Empty");
+  } else {
+    oled.print(incomingMorse);
+    char result = morseDecode(incomingMorse);
+    if (locked) {
+      addChar(result);
+    } else {
+      lockContainer();
+      clearData();
+    }
+  }
 }
 
 char morseDecode(String testCode) {
@@ -172,4 +182,13 @@ void addChar(char result) {
       clearData();
     }
   }
+}
+
+bool isArrayEmpty(char incomingMorse[]) {
+ for (int i = 0; i<32; i++) {
+  if (incomingMorse[i] != 0) {
+    return false;
+  }
+ }
+ return true;
 }
