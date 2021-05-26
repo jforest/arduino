@@ -61,7 +61,8 @@ void setup() {
     }
   }
   radio.setPALevel(RF24_PA_MIN);
-  radio.setRetries(3,5); // delay, count
+  radio.setDataRate(RF24_250KBPS);
+  radio.setRetries(3,10); // delay, count
   radio.openWritingPipe(rxAddress);
 
   pinMode(buttonPin, INPUT);
@@ -128,11 +129,15 @@ String morseOutput(String code, String screen) {
 }
 
 void transmit(String payload) {
-  char payloadInChars[32];
-  payload.toCharArray(payloadInChars, 32); // we expect a 32 char array on the other side too
+  char payloadInChars[8];
+  payload.toCharArray(payloadInChars, 8); // we expect a 32 char array on the other side too
   if (!radio.write(&payloadInChars, sizeof(payloadInChars))) {
     oled.setCursor(0,5);
     oled.clearToEOL();
     oled.print("Failed to send");
+  } else {
+    oled.setCursor(0,5);
+    oled.clearToEOL();
+    oled.print("Sent!");
   }
 }
