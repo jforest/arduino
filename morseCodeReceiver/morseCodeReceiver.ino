@@ -84,7 +84,7 @@ void setup() {
 }
 
 void loop() {
-  char incomingMorse[32];                // Variable for morse code
+  char incomingMorse[8] = {'0','0','0','0','0','0','0','0'}; // Variable for morse code
 
   if(radio.available()) {
     while(radio.available()) {           // While there is data ready
@@ -92,10 +92,7 @@ void loop() {
     }
   }
 
-  if (isArrayEmpty(incomingMorse)) {
-    oled.print("array Empty");
-  } else {
-    oled.print(incomingMorse);
+  if (!isArrayEmpty(incomingMorse)) {
     char result = morseDecode(incomingMorse);
     if (locked) {
       addChar(result);
@@ -120,7 +117,7 @@ char morseDecode(String testCode) {
                            '@', '(', ')', '/', '-', '='};
 
   for (int i = 0; i <= 48; i++) {
-    delay(unitDelay/15);
+    //delay(unitDelay/15);
     if (encoded[i] == testCode) {
       return decoded[i];
     } else if (encoded[i] == "!") {
@@ -185,8 +182,8 @@ void addChar(char result) {
 }
 
 bool isArrayEmpty(char incomingMorse[]) {
- for (int i = 0; i<32; i++) {
-  if (incomingMorse[i] != 0) {
+ for (int i = 0; i<8; i++) {
+  if (incomingMorse[i] != '0') {
     return false;
   }
  }
