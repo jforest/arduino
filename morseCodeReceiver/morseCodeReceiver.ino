@@ -1,13 +1,12 @@
 // Morse code - Receiver
 #include "RF24.h"
 #include <nRF24L01.h>
-#include <Servo.h>
 #include <SPI.h>
 #include "SSD1306Ascii.h"
 #include "SSD1306AsciiWire.h"
 
 #define I2C_ADDRESS 0x3C
-#define ANSWER_LENGTH 8
+#define ANSWER_LENGTH 4
 
 // Delay between button pushes
 const int unitDelay = 250;
@@ -18,10 +17,6 @@ const int ledPin = 10;
 const int lockPin = 2;
 const int cePin = 7;
 const int csnPin = 8;
-
-// servo positions
-const int lockedPos = 90;  // locked position of servo
-const int unlockedPos = 180; // unlocked position of servo
 
 // Initial pin states
 int ledState = LOW;
@@ -36,16 +31,14 @@ String dot = ".";
 
 boolean checker = false;
 boolean linechecker = false;
-boolean locked = true;                  // is the container locked or not
 char data[ANSWER_LENGTH];               // String received via morse code
-char master[ANSWER_LENGTH] = "MARCONI"; // String needed to unlock the container
+char master[ANSWER_LENGTH] = "SOS"; // String needed to unlock the container
 byte dataCount = 0;                     // number of chars received so far
 
 const byte rxAddress[5] = {'R','N','o','d','e'};
 
-// Create the display object and servo object
+// Create the display object
 SSD1306AsciiWire oled;
-Servo lock;
 
 // instantiate an object for the nRF24L01 transceiver
 RF24 radio(cePin, csnPin);
@@ -61,6 +54,7 @@ void setup() {
   oled.print("Decoding morse!");
   oled.setCursor(0, 2);
   pinMode(ledPin, OUTPUT);
+  pinMode(lockPin, OUTPUT);
 
   if (!radio.begin()) {
     oled.print("Rx not working");
@@ -79,7 +73,6 @@ void setup() {
 
   digitalWrite(ledPin, LOW);
 
-  lock.attach(lockPin);
   lockContainer();
 }
 
@@ -94,12 +87,7 @@ void loop() {
 
   if (!isArrayEmpty(incomingMorse)) {
     char result = morseDecode(incomingMorse);
-    if (locked) {
-      addChar(result);
-    } else {
-      lockContainer();
-      clearData();
-    }
+    addChar(result);
   }
 }
 
@@ -127,19 +115,17 @@ char morseDecode(String testCode) {
 }
 
 void unlockContainer() {
-  lock.write(unlockedPos);  // tell servo to go to unlocked position
-  delay(15);                // waits 15ms for the servo to reach the position
+  digitalWrite(lockPin, HIGH);
   statusMessage("Unlocked!");
-  delay(unitDelay*4);
-  locked = false;
+  delay(unitDelay*30);
+  digitalWrite(lockPin, LOW);
+  lockContainer();
 }
 
 void lockContainer() {
-  lock.write(lockedPos);  // tell the servo to go to the locked position
-  delay(15);              // waits 15ms for the servo to reach the position
+  digitalWrite(lockPin, LOW);
   statusMessage("Locked!");
   delay(unitDelay*4);
-  locked = true;
 }
 
 void statusMessage(String message) {
@@ -172,7 +158,6 @@ void addChar(char result) {
     if (!strcmp(data, master)) {
       statusMessage("CORRECT!");
       unlockContainer();
-      oled.write("Send any code");
       clearData();
     } else {
       statusMessage("INCORRECT!");
