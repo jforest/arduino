@@ -60,7 +60,7 @@ void setup() {
       delay(1000);
     }
   }
-  radio.setPALevel(RF24_PA_MIN);
+  radio.setPALevel(RF24_PA_HIGH);
   radio.setDataRate(RF24_250KBPS);
   radio.setRetries(3,10); // delay, count
   radio.openWritingPipe(rxAddress);
@@ -73,7 +73,7 @@ void setup() {
 
 void loop() {
   static String screenOutput = "";
-  buttonState = digitalRead(buttonPin);
+  buttonState = !digitalRead(buttonPin);
 
   if (buttonState && lastButtonState) {
     ++signalLength;
@@ -130,7 +130,7 @@ String morseOutput(String code, String screen) {
 
 void transmit(String payload) {
   char payloadInChars[8];
-  payload.toCharArray(payloadInChars, 8); // we expect a 32 char array on the other side too
+  payload.toCharArray(payloadInChars, 8); // we expect a 8 char array on the other side too
   if (!radio.write(&payloadInChars, sizeof(payloadInChars))) {
     oled.setCursor(0,5);
     oled.clearToEOL();
