@@ -6,7 +6,7 @@
 #include "SSD1306AsciiWire.h"
 
 #define I2C_ADDRESS 0x3C
-#define ANSWER_LENGTH 4
+#define ANSWER_LENGTH 8
 
 // Delay between button pushes
 const int unitDelay = 250;
@@ -32,7 +32,7 @@ String dot = ".";
 boolean checker = false;
 boolean linechecker = false;
 char data[ANSWER_LENGTH];               // String received via morse code
-char master[ANSWER_LENGTH] = "SOS"; // String needed to unlock the container
+char master[ANSWER_LENGTH] = "MARCONI"; // String needed to unlock the container
 byte dataCount = 0;                     // number of chars received so far
 
 const byte rxAddress[5] = {'R','N','o','d','e'};
@@ -117,7 +117,13 @@ char morseDecode(String testCode) {
 void unlockContainer() {
   digitalWrite(lockPin, HIGH);
   statusMessage("Unlocked!");
-  delay(unitDelay*30);
+  delay(unitDelay*4);
+  for(int i = 0; i < 5; i++) {
+    String countDown = "Locks in ";
+    countDown += (5 - i);
+    statusMessage(countDown);
+    delay(unitDelay*4);
+  }
   digitalWrite(lockPin, LOW);
   lockContainer();
 }
