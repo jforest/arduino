@@ -22,7 +22,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  for (int i=0; i<NUM_LEDS; i+BATCH_SIZE) {
+  for (int i=0; i<NUM_LEDS; i+=BATCH_SIZE) {
     pulseLeds(BATCH_SIZE, i);
   }
 }
@@ -32,11 +32,9 @@ void pulseLeds(int batchSize, int startingLED) {
   for (int i=startingLED; i<(startingLED + batchSize); i++) {
     leds[i] = CRGB::OrangeRed;
     FastLED.show();
-    delay(10);
   }
   for (int i=startingLED; i<(startingLED + batchSize); i++) {
-      leds[i] = CRGB::Black;
-      FastLED.show();
-      delay(10);
-    }
+    leds[i] = CRGB::Black;
+    FastLED.show();
   }
+}
