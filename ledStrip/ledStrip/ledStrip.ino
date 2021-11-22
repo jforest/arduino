@@ -25,7 +25,8 @@ void loop() {
   // Cycle through the leds, dimming brightness on each one slowly in a wave
   for (int i=0; i<NUM_LEDS; i+=BATCH_SIZE) {
     for (int j=i; j<i+BATCH_SIZE; j++) {
-      leds[j] = CRGB::
+      leds[j] = CRGB::White;
+      FastLED[0].showLeds(gBrightness);
     } 
   }
 }
