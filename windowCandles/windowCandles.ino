@@ -14,28 +14,24 @@ uint8_t maxBrightness = 255;
 uint8_t minBrightness = 50;
 CRGB leds[NUM_LEDS];
 
-DEFINE_GRADIENT_PALETTE
-
 void setup() {
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   FastLED.setMaxPowerInVoltsAndMilliamps(VOLTS, MAX_MA);
   FastLED.setBrightness(minBrightness);
   FastLED.clear();
-  fill_solid(leds, NUM_LEDS, CRGB::Goldenrod);
-  FastLED[0].showLeds(minBrightness);
+  FastLED.show();
 }
 
 void loop() {
-  flickerLEDs();
+  int randLED = random(3);
+  flickerLEDs(randLED);
 }
 
-void flickerLEDs() {
-  for (int i=minBrightness; i<=maxBrightness; i++) {
-    FastLED[0].showLeds(i);
-    delay(1);
+void flickerLEDs(int randLED) {
+  FastLED.clear();
+  for (int led = 0; led <= randLED; led++) {
+    leds[led] = CHSV(43, 217, 218);
   }
-  for (int i=maxBrightness; i>=minBrightness; i--) {
-    FastLED[0].showLeds(i);
-    delay(5);
-  }
+  FastLED.show();
+  delay(10);
 }
