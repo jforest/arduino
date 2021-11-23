@@ -10,14 +10,14 @@
 #define DATA_PIN        7
 #define VOLTS          5
 #define MAX_MA       500
-uint8_t maxBrightness = 255;
-uint8_t minBrightness = 50;
+#define BRIGHTNESS 200
+
 CRGB leds[NUM_LEDS];
 
 void setup() {
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   FastLED.setMaxPowerInVoltsAndMilliamps(VOLTS, MAX_MA);
-  FastLED.setBrightness(minBrightness);
+  FastLED.setBrightness(BRIGHTNESS);
   FastLED.clear();
   FastLED.show();
 }
