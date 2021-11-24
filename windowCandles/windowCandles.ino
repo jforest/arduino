@@ -22,7 +22,7 @@ void setup() {
 
 void loop() {
   EVERY_N_MILLISECONDS(10) {
-    int randLED = random(3);
+    int randLED = random(NUM_LEDS);
     flickerLEDs(randLED);
   }
 }
