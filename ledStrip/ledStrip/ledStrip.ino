@@ -5,56 +5,12 @@
 #define COLOR_ORDER   GRB
 #define DATA_PIN        7
 #define VOLTS          5
-#define MAX_MA       500
+#define MAX_MA       1500
 
 CRGB leds[NUM_LEDS];
 uint8_t hue = 41;  // light yellowish color
 uint8_t saturation = 175; // just enough yellow and not white
 uint8_t brightness = 255;
-
-// Gradient palette "temperature_gp", originally from
-// http://soliton.vm.bytemark.co.uk/pub/cpt-city/arendal/tn/temperature.png.index.html
-// converted for FastLED with gammas (2.6, 2.2, 2.5)
-// Size: 144 bytes of program space.
-
-DEFINE_GRADIENT_PALETTE( temperature_gp ) {
-    0,   1, 27,105,
-   14,   1, 27,105,
-   14,   1, 40,127,
-   28,   1, 40,127,
-   28,   1, 70,168,
-   42,   1, 70,168,
-   42,   1, 92,197,
-   56,   1, 92,197,
-   56,   1,119,221,
-   70,   1,119,221,
-   70,   3,130,151,
-   84,   3,130,151,
-   84,  23,156,149,
-   99,  23,156,149,
-   99,  67,182,112,
-  113,  67,182,112,
-  113, 121,201, 52,
-  127, 121,201, 52,
-  127, 142,203, 11,
-  141, 142,203, 11,
-  141, 224,223,  1,
-  155, 224,223,  1,
-  155, 252,187,  2,
-  170, 252,187,  2,
-  170, 247,147,  1,
-  184, 247,147,  1,
-  184, 237, 87,  1,
-  198, 237, 87,  1,
-  198, 229, 43,  1,
-  212, 229, 43,  1,
-  212, 220, 15,  1,
-  226, 220, 15,  1,
-  226, 171,  2,  2,
-  240, 171,  2,  2,
-  240,  80,  3,  3,
-  255,  80,  3,  3};
-
 
 DEFINE_GRADIENT_PALETTE( heatmap_gp ) {
   0,     0,  0,  0,   //black
@@ -62,9 +18,10 @@ DEFINE_GRADIENT_PALETTE( heatmap_gp ) {
 224,   255,255,  0,   //bright yellow
 255,   255,255,255 }; //full white
 
-CRGBPalette16 myPal = temperature_gp;
+CRGBPalette16 heatPal = heatmap_gp;
 
-CRGBPalette16 testPal = CRGBPalette16 (
+
+CRGBPalette16 brightChristmasPal = CRGBPalette16 (
   CRGB::Black,
   CRGB::Black,
 
@@ -90,59 +47,106 @@ CRGBPalette16 testPal = CRGBPalette16 (
   CRGB::White
 );
 
+CRGBPalette16 hanukkahPal = CRGBPalette16 (
+  CRGB::Black,
+  CRGB::Black,
+
+  CRGB::RoyalBlue,
+  CRGB::RoyalBlue,
+  CRGB::RoyalBlue,
+  CRGB::RoyalBlue,
+  CRGB::RoyalBlue,
+  CRGB::RoyalBlue,
+  CRGB::RoyalBlue,
+
+  CRGB::White,
+  CRGB::White,
+  CRGB::White,
+  CRGB::White,
+  CRGB::White,
+  CRGB::White,
+  CRGB::White
+);
+
+CRGBPalette16 christmasPal = CRGBPalette16 (
+  CRGB::Red,
+  CRGB::Red,
+  CRGB::Red,
+  CRGB::Red,
+  CRGB::Red,
+  CRGB::Red,
+  CRGB::Red,
+  CRGB::Red,
+
+  CRGB::Green,
+  CRGB::Green,
+  CRGB::Green,
+  CRGB::Green,
+  CRGB::Green,
+  CRGB::Green,
+  CRGB::Green,
+  CRGB::Green
+);
+
 uint8_t paletteIndex = 0;
 int scheme = 0;
 
 void setup() {
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
   FastLED.setMaxPowerInVoltsAndMilliamps(VOLTS, MAX_MA);
-  FastLED.setBrightness(brightness);
   FastLED.clear();
   FastLED.show();
+  Serial.begin(9600);
 }
 
 void loop() {
-  EVERY_N_SECONDS(5) {
-    scheme = random(0, 2);
+  EVERY_N_SECONDS(60) {
+    scheme = random(0, 6);
+    Serial.println(scheme);
   }
 
   runScheme(scheme);
-
   FastLED.show();
 }
-
 
 void runScheme(int scheme) {
   switch( scheme ) {
     case 0:
-      randomLights();
+      randomLights(brightChristmasPal);
       break;
     case 1:
-      runningRainbow();
+      runningRainbow(hanukkahPal);
+      break;
+    case 2:
+      runningRainbow(brightChristmasPal);
+      break;
+    case 3:
+      randomLights(hanukkahPal);
+      break;
+    case 4:
+      runningRainbow(christmasPal);
+      break;
+    case 5:
+      randomLights(christmasPal);
       break;
     default:
-      flickerLEDs(random(0, NUM_LEDS));
+      runningRainbow(christmasPal);
       break;
   }
 }
-void randomLights() {
-    EVERY_N_MILLISECONDS(10) {
-      leds[random(0, NUM_LEDS - 1)] = ColorFromPalette(testPal, random8(), 255, LINEARBLEND);
+
+void randomLights(CRGBPalette16 pal) {
+    EVERY_N_MILLISECONDS(50) {
+      leds[random(0, NUM_LEDS - 1)] = ColorFromPalette(pal, random8(), 255, LINEARBLEND);
     }
     fadeToBlackBy(leds, NUM_LEDS, 1);
+    FastLED.show();
 }
 
-void flickerLEDs(int randLED) {
-  FastLED.clear();
-  for (int led = 0; led <= randLED; led++) {
-    leds[led] = CHSV(hue, saturation, brightness);
-  }
-  FastLED.show();
-}
-
-void runningRainbow() {
-  fill_palette(leds, NUM_LEDS, paletteIndex, 1, testPal, 255, LINEARBLEND);
-  EVERY_N_MILLISECONDS(10) {
+void runningRainbow(CRGBPalette16 pal) {
+  fill_palette(leds, NUM_LEDS, paletteIndex, 255, pal, 255, LINEARBLEND);
+  EVERY_N_MILLISECONDS(50) {
     paletteIndex++;
   }
+  FastLED.show();
 }
