@@ -25,8 +25,8 @@ CRGBPalette16 brightChristmasPal = CRGBPalette16 (
   CRGB::Black,
   CRGB::Black,
 
-  CRGB::RoyalBlue,
-  CRGB::RoyalBlue,
+  CRGB::Blue,
+  CRGB::Blue,
 
   CRGB::Red,
   CRGB::Red,
@@ -48,42 +48,53 @@ CRGBPalette16 brightChristmasPal = CRGBPalette16 (
 );
 
 CRGBPalette16 hanukkahPal = CRGBPalette16 (
-  CRGB::Black,
-  CRGB::Black,
+  CRGB::White,
+  CRGB::White,
 
-  CRGB::RoyalBlue,
-  CRGB::RoyalBlue,
-  CRGB::RoyalBlue,
-  CRGB::RoyalBlue,
-  CRGB::RoyalBlue,
-  CRGB::RoyalBlue,
-  CRGB::RoyalBlue,
+  CRGB::Blue,
+  CRGB::Blue,
 
   CRGB::White,
   CRGB::White,
+
+  CRGB::Blue,
+  CRGB::Blue,
+
   CRGB::White,
   CRGB::White,
+
+  CRGB::Blue,
+  CRGB::Blue,
+
   CRGB::White,
   CRGB::White,
-  CRGB::White
+
+  CRGB::Blue,
+  CRGB::Blue
 );
 
 CRGBPalette16 christmasPal = CRGBPalette16 (
   CRGB::Red,
   CRGB::Red,
-  CRGB::Red,
-  CRGB::Red,
-  CRGB::Red,
-  CRGB::Red,
+
+  CRGB::Green,
+  CRGB::Green,
+
   CRGB::Red,
   CRGB::Red,
 
   CRGB::Green,
   CRGB::Green,
+
+  CRGB::Red,
+  CRGB::Red,
+
   CRGB::Green,
   CRGB::Green,
-  CRGB::Green,
-  CRGB::Green,
+
+  CRGB::Red,
+  CRGB::Red,
+
   CRGB::Green,
   CRGB::Green
 );
@@ -136,7 +147,7 @@ void runScheme(int scheme) {
 }
 
 void randomLights(CRGBPalette16 pal) {
-    EVERY_N_MILLISECONDS(50) {
+    EVERY_N_MILLISECONDS(25) {
       leds[random(0, NUM_LEDS - 1)] = ColorFromPalette(pal, random8(), 255, LINEARBLEND);
     }
     fadeToBlackBy(leds, NUM_LEDS, 1);
@@ -145,7 +156,7 @@ void randomLights(CRGBPalette16 pal) {
 
 void runningRainbow(CRGBPalette16 pal) {
   fill_palette(leds, NUM_LEDS, paletteIndex, 255, pal, 255, LINEARBLEND);
-  EVERY_N_MILLISECONDS(50) {
+  EVERY_N_MILLISECONDS(25) {
     paletteIndex++;
   }
   FastLED.show();
