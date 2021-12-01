@@ -22,29 +22,29 @@ CRGBPalette16 heatPal = heatmap_gp;
 
 
 CRGBPalette16 brightChristmasPal = CRGBPalette16 (
-  CRGB::Black,
-  CRGB::Black,
-
-  CRGB::Blue,
-  CRGB::Blue,
-
   CRGB::Red,
   CRGB::Red,
 
-  CRGB::Yellow,
-  CRGB::Yellow,
-
-  CRGB::Purple,
-  CRGB::Purple,
+  CRGB::RoyalBlue,
+  CRGB::RoyalBlue,
 
   CRGB::Green,
   CRGB::Green,
 
-  CRGB::OrangeRed,
-  CRGB::OrangeRed,
+  CRGB::Goldenrod,
+  CRGB::Goldenrod,
 
-  CRGB::White,
-  CRGB::White
+  CRGB::Red,
+  CRGB::Red,
+
+  CRGB::RoyalBlue,
+  CRGB::RoyalBlue,
+
+  CRGB::Green,
+  CRGB::Green,
+
+  CRGB::Goldenrod,
+  CRGB::Goldenrod
 );
 
 CRGBPalette16 hanukkahPal = CRGBPalette16 (
