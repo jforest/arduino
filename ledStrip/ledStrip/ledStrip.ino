@@ -12,15 +12,6 @@ uint8_t hue = 41;  // light yellowish color
 uint8_t saturation = 175; // just enough yellow and not white
 uint8_t brightness = 255;
 
-DEFINE_GRADIENT_PALETTE( heatmap_gp ) {
-  0,     0,  0,  0,   //black
-128,   255,  0,  0,   //red
-224,   255,255,  0,   //bright yellow
-255,   255,255,255 }; //full white
-
-CRGBPalette16 heatPal = heatmap_gp;
-
-
 CRGBPalette16 brightChristmasPal = CRGBPalette16 (
   CRGB::Red,
   CRGB::Red,
@@ -28,11 +19,11 @@ CRGBPalette16 brightChristmasPal = CRGBPalette16 (
   CRGB::RoyalBlue,
   CRGB::RoyalBlue,
 
-  CRGB::Green,
-  CRGB::Green,
+  CRGB::Goldenrod,
+  CRGB::Goldenrod,
 
-  CRGB::Goldenrod,
-  CRGB::Goldenrod,
+  CRGB::Green,
+  CRGB::Green,
 
   CRGB::Red,
   CRGB::Red,
@@ -40,11 +31,11 @@ CRGBPalette16 brightChristmasPal = CRGBPalette16 (
   CRGB::RoyalBlue,
   CRGB::RoyalBlue,
 
-  CRGB::Green,
-  CRGB::Green,
-
   CRGB::Goldenrod,
-  CRGB::Goldenrod
+  CRGB::Goldenrod,
+  
+  CRGB::Green,
+  CRGB::Green
 );
 
 CRGBPalette16 hanukkahPal = CRGBPalette16 (
@@ -99,6 +90,32 @@ CRGBPalette16 christmasPal = CRGBPalette16 (
   CRGB::Green
 );
 
+CRGBPalette16 thirdChristmasPal = CRGBPalette16 (
+  CRGB::Red,
+  CRGB::Red,
+
+  CRGB::Blue,
+  CRGB::Blue,
+
+  CRGB::Orange,
+  CRGB::Orange,
+
+  CRGB::Green,
+  CRGB::Green,
+
+  CRGB::Yellow,
+  CRGB::Yellow,
+
+  CRGB::Red,
+  CRGB::Red,
+
+  CRGB::Blue,
+  CRGB::Blue,
+
+  CRGB::Orange,
+  CRGB::Orange
+);
+
 uint8_t paletteIndex = 0;
 int scheme = 0;
 
@@ -126,22 +143,22 @@ void runScheme(int scheme) {
       randomLights(brightChristmasPal);
       break;
     case 1:
-      runningRainbow(hanukkahPal);
+      randomLights(thirdChristmasPal);
       break;
     case 2:
-      runningRainbow(brightChristmasPal);
-      break;
-    case 3:
-      randomLights(hanukkahPal);
-      break;
-    case 4:
-      runningRainbow(christmasPal);
-      break;
-    case 5:
       randomLights(christmasPal);
       break;
-    default:
+    case 3:
+      runningRainbow(brightChristmasPal);
+      break;
+    case 4:
+      runningRainbow(thirdChristmasPal);
+      break;
+    case 5:
       runningRainbow(christmasPal);
+      break;
+    default:
+      randomLights(thirdChristmasPal);
       break;
   }
 }
