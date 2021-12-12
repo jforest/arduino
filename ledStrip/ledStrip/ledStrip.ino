@@ -129,7 +129,7 @@ void setup() {
 
 void loop() {
   EVERY_N_SECONDS(60) {
-    scheme = random(0, 6);
+    scheme = random(0, 9);
     Serial.println(scheme);
   }
 
@@ -157,8 +157,17 @@ void runScheme(int scheme) {
     case 5:
       runningRainbow(christmasPal);
       break;
+    case 6:
+      bothSides(brightChristmasPal);
+      break;
+    case 7:
+      bothSides(thirdChristmasPal);
+      break;
+    case 8:
+      bothSides(christmasPal);
+      break;
     default:
-      randomLights(thirdChristmasPal);
+      randomLights(brightChristmasPal);
       break;
   }
 }
@@ -168,7 +177,6 @@ void randomLights(CRGBPalette16 pal) {
       leds[random(0, NUM_LEDS - 1)] = ColorFromPalette(pal, random8(), 255, LINEARBLEND);
     }
     fadeToBlackBy(leds, NUM_LEDS, 1);
-    FastLED.show();
 }
 
 void runningRainbow(CRGBPalette16 pal) {
@@ -176,5 +184,16 @@ void runningRainbow(CRGBPalette16 pal) {
   EVERY_N_MILLISECONDS(25) {
     paletteIndex++;
   }
-  FastLED.show();
+}
+
+void bothSides(CRGBPalette16 pal) {
+  uint16_t sin1 = beatsin16(2, 0, NUM_LEDS - 1, 0, 0);
+  uint16_t sin2 = beatsin16(2, 0, NUM_LEDS -1, 0, 32768);
+  uint8_t color1 = beatsin8(2, 0, 255, 0, 0);
+  uint8_t color2 = beatsin8(2, 0, 255, 0, 64);
+
+  leds[sin1] = ColorFromPalette(pal, color1, 255, LINEARBLEND);
+  leds[sin2] = ColorFromPalette(pal, color2, 255, LINEARBLEND);
+  blur1d(leds, NUM_LEDS, 64);
+  fadeToBlackBy(leds, NUM_LEDS, 10);
 }
