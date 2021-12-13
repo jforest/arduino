@@ -11,9 +11,7 @@
 
 CRGB leds[NUM_LEDS];
 CRGB leds2[NUM_LEDS2];
-uint8_t hue = 41;  // light yellowish color
-uint8_t saturation = 175; // just enough yellow and not white
-uint8_t brightness = 255;
+uint8_t brightness = 127;
 
 CRGBPalette16 brightChristmasPal = CRGBPalette16 (
   CRGB::Red,
@@ -178,17 +176,16 @@ void runScheme(int scheme) {
 
 void randomLights(CRGBPalette16 pal) {
     EVERY_N_MILLISECONDS(25) {
-      leds[random(0, NUM_LEDS - 1)] = ColorFromPalette(pal, random8(), 255, LINEARBLEND);
-      leds2[random(0, NUM_LEDS2 -1)] = ColorFromPalette(pal, random8(), 255,
-      LINEARBLEND);
+      leds[random(0, NUM_LEDS - 1)] = ColorFromPalette(pal, random8(), brightness, LINEARBLEND);
+      leds2[random(0, NUM_LEDS2 -1)] = ColorFromPalette(pal, random8(), brightness, LINEARBLEND);
     }
     fadeToBlackBy(leds, NUM_LEDS, 1);
     fadeToBlackBy(leds2, NUM_LEDS2, 1);
 }
 
 void runningRainbow(CRGBPalette16 pal) {
-  fill_palette(leds, NUM_LEDS, paletteIndex, 255, pal, 255, LINEARBLEND);
-  fill_palette(leds2, NUM_LEDS2, paletteIndex + 127, 255, pal, 255, LINEARBLEND);
+  fill_palette(leds, NUM_LEDS, paletteIndex, 255, pal, brightness, LINEARBLEND);
+  fill_palette(leds2, NUM_LEDS2, paletteIndex + 64, 255, pal, brightness, LINEARBLEND);
   EVERY_N_MILLISECONDS(25) {
     paletteIndex++;
   }
@@ -200,18 +197,18 @@ void bothSides(CRGBPalette16 pal) {
   uint8_t color1 = beatsin8(2, 0, 255, 0, 0);
   uint8_t color2 = beatsin8(2, 0, 255, 0, 64);
 
-  uint16_t sin3 = beatsin16(2, 0, NUM_LEDS2 - 1, 0, 0);
-  uint16_t sin4 = beatsin16(2, 0, NUM_LEDS2 - 1, 0, 16384);
-  uint8_t color3 = beatsin8(2, 0, 255, 0, 0);
-  uint8_t color4 = beatsin8(2, 0, 255, 0, 192);
+  uint16_t sin3 = beatsin16(2, 0, NUM_LEDS2 - 1, 0, 23322);
+  uint16_t sin4 = beatsin16(2, 0, NUM_LEDS2 - 1, 0, 9834);
+  uint8_t color3 = beatsin8(2, 0, 255, 0, 32);
+  uint8_t color4 = beatsin8(2, 0, 255, 0, 147);
 
-  leds[sin1] = ColorFromPalette(pal, color1, 255, LINEARBLEND);
-  leds[sin2] = ColorFromPalette(pal, color2, 255, LINEARBLEND);
+  leds[sin1] = ColorFromPalette(pal, color1, brightness, LINEARBLEND);
+  leds[sin2] = ColorFromPalette(pal, color2, brightness, LINEARBLEND);
   blur1d(leds, NUM_LEDS, 64);
   fadeToBlackBy(leds, NUM_LEDS, 10);
 
-  leds2[sin3] = ColorFromPalette(pal, color3, 255, LINEARBLEND);
-  leds2[sin4] = ColorFromPalette(pal, color4, 255, LINEARBLEND);
+  leds2[sin3] = ColorFromPalette(pal, color3, brightness, LINEARBLEND);
+  leds2[sin4] = ColorFromPalette(pal, color4, brightness, LINEARBLEND);
   blur1d(leds2, NUM_LEDS2, 64);
   fadeToBlackBy(leds2, NUM_LEDS2, 10);
 }
