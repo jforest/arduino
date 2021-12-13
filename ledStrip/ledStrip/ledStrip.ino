@@ -192,15 +192,15 @@ void runningRainbow(CRGBPalette16 pal) {
 }
 
 void bothSides(CRGBPalette16 pal) {
-  uint16_t sin1 = beatsin16(2, 0, NUM_LEDS - 1, 0, 0);
-  uint16_t sin2 = beatsin16(2, 0, NUM_LEDS - 1, 0, 32768);
-  uint8_t color1 = beatsin8(2, 0, 255, 0, 0);
-  uint8_t color2 = beatsin8(2, 0, 255, 0, 64);
+  uint16_t sin1 = beatsin16(2, 0, NUM_LEDS - 1, 0, random16());
+  uint16_t sin2 = beatsin16(2, 0, NUM_LEDS - 1, 0, random16());
+  uint8_t color1 = beatsin8(2, 0, 255, 0, random8());
+  uint8_t color2 = beatsin8(2, 0, 255, 0, random8());
 
-  uint16_t sin3 = beatsin16(2, 0, NUM_LEDS2 - 1, 0, 23322);
-  uint16_t sin4 = beatsin16(2, 0, NUM_LEDS2 - 1, 0, 9834);
-  uint8_t color3 = beatsin8(2, 0, 255, 0, 32);
-  uint8_t color4 = beatsin8(2, 0, 255, 0, 147);
+  uint16_t sin3 = beatsin16(2, 0, NUM_LEDS2 - 1, 0, random16());
+  uint16_t sin4 = beatsin16(2, 0, NUM_LEDS2 - 1, 0, random16());
+  uint8_t color3 = beatsin8(2, 0, 255, 0, random8());
+  uint8_t color4 = beatsin8(2, 0, 255, 0, random8());
 
   leds[sin1] = ColorFromPalette(pal, color1, brightness, LINEARBLEND);
   leds[sin2] = ColorFromPalette(pal, color2, brightness, LINEARBLEND);
