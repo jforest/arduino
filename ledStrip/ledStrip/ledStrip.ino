@@ -1,13 +1,16 @@
 #include "FastLED.h"
 
 #define NUM_LEDS      600
-#define LED_TYPE   WS2812B
+#define NUM_LEDS2     688
+#define LED_TYPE  WS2812B
 #define COLOR_ORDER   GRB
 #define DATA_PIN        7
-#define VOLTS          5
+#define DATA_PIN2       6
+#define VOLTS           5
 #define MAX_MA       1500
 
 CRGB leds[NUM_LEDS];
+CRGB leds2[NUM_LEDS2];
 uint8_t hue = 41;  // light yellowish color
 uint8_t saturation = 175; // just enough yellow and not white
 uint8_t brightness = 255;
@@ -121,6 +124,7 @@ int scheme = 0;
 
 void setup() {
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+  FastLED.addLeds<LED_TYPE, DATA_PIN2, COLOR_ORDER>(leds2, NUM_LEDS2);
   FastLED.setMaxPowerInVoltsAndMilliamps(VOLTS, MAX_MA);
   FastLED.clear();
   FastLED.show();
@@ -175,12 +179,16 @@ void runScheme(int scheme) {
 void randomLights(CRGBPalette16 pal) {
     EVERY_N_MILLISECONDS(25) {
       leds[random(0, NUM_LEDS - 1)] = ColorFromPalette(pal, random8(), 255, LINEARBLEND);
+      leds2[random(0, NUM_LEDS2 -1)] = ColorFromPalette(pal, random8(), 255,
+      LINEARBLEND);
     }
     fadeToBlackBy(leds, NUM_LEDS, 1);
+    fadeToBlackBy(leds2, NUM_LEDS2, 1);
 }
 
 void runningRainbow(CRGBPalette16 pal) {
   fill_palette(leds, NUM_LEDS, paletteIndex, 255, pal, 255, LINEARBLEND);
+  fill_palette(leds2, NUM_LEDS2, paletteIndex + 127, 255, pal, 255, LINEARBLEND);
   EVERY_N_MILLISECONDS(25) {
     paletteIndex++;
   }
@@ -188,12 +196,22 @@ void runningRainbow(CRGBPalette16 pal) {
 
 void bothSides(CRGBPalette16 pal) {
   uint16_t sin1 = beatsin16(2, 0, NUM_LEDS - 1, 0, 0);
-  uint16_t sin2 = beatsin16(2, 0, NUM_LEDS -1, 0, 32768);
+  uint16_t sin2 = beatsin16(2, 0, NUM_LEDS - 1, 0, 32768);
   uint8_t color1 = beatsin8(2, 0, 255, 0, 0);
   uint8_t color2 = beatsin8(2, 0, 255, 0, 64);
+
+  uint16_t sin3 = beatsin16(2, 0, NUM_LEDS2 - 1, 0, 0);
+  uint16_t sin4 = beatsin16(2, 0, NUM_LEDS2 - 1, 0, 16384);
+  uint8_t color3 = beatsin8(2, 0, 255, 0, 0);
+  uint8_t color4 = beatsin8(2, 0, 255, 0, 192);
 
   leds[sin1] = ColorFromPalette(pal, color1, 255, LINEARBLEND);
   leds[sin2] = ColorFromPalette(pal, color2, 255, LINEARBLEND);
   blur1d(leds, NUM_LEDS, 64);
   fadeToBlackBy(leds, NUM_LEDS, 10);
+
+  leds2[sin3] = ColorFromPalette(pal, color3, 255, LINEARBLEND);
+  leds2[sin4] = ColorFromPalette(pal, color4, 255, LINEARBLEND);
+  blur1d(leds2, NUM_LEDS2, 64);
+  fadeToBlackBy(leds2, NUM_LEDS2, 10);
 }
